@@ -2,6 +2,9 @@
 
 (import (cslib all))
 
+(define results-tag
+  (make-parameter #f))
+
 (define results-path
   (make-parameter #f))
 
@@ -128,17 +131,44 @@
     (get-gz/gt-ratio-name sample "pion-qpdf-latio")
     (get-gz/gt-ratio-name sample "proton-u-d-qpdf-latio")))
 
-; cons car cdr
+(define (get-corr-dt jsamples name lmom)
+  (let ([f (lambda (s)
+             (rec-lookup s name (list 'lmom lmom)))])
+    (merge-same-idx-datatables
+      (f (car jsamples))
+      (apply tree-op jackknife-sigma
+        (map f jsamples)))))
+
+(define (plot-corr jsamples name)
+  (plot-save
+    (format "plots/~a/~a.pdf" (results-tag) name)
+    (cons "corr-0.txt"
+          (get-corr-dt jsamples name 0))
+    (cons "corr-1.txt"
+          (get-corr-dt jsamples name 1))
+    (cons "corr-2.txt"
+          (get-corr-dt jsamples name 2))
+    (cons "corr-3.txt"
+          (get-corr-dt jsamples name 3))
+    (cons "corr-4.txt"
+          (get-corr-dt jsamples name 4))
+    (format "set title '~a'" name)
+    "set key rm"
+    "set logscale y"
+    (mk-plot-line
+      "plot [0:20]"
+      "'corr-0.txt' u 1:2:4 w yerrorbar t '$P_z = 0$'"
+      "'corr-1.txt' u 1:2:4 w yerrorbar t '$P_z = 1$'"
+      "'corr-2.txt' u 1:2:4 w yerrorbar t '$P_z = 2$'"
+      "'corr-3.txt' u 1:2:4 w yerrorbar t '$P_z = 3$'"
+      "'corr-4.txt' u 1:2:4 w yerrorbar t '$P_z = 4$'"
+      )))
 
 (define (collect-analysis)
   (let* ([jsamples (get-jsamples-with get-sample)])
     (print (dec (length jsamples)))
-    (plot-save
-      "plots/pion-corr.pdf"
-      (cons "corr.txt" (cdr (list-ref (car (car jsamples)) 1)))
-      (mk-plot-line
-        "plot [:]"
-        "'corr.txt' u 1:2 w p t 'pion corr'"))
+    (plot-corr jsamples "pion-corr")
+    (plot-corr jsamples "proton-corr")
     ; (print
     ;   (apply
     ;     tree-op cons
@@ -155,6 +185,7 @@
 
 (define (reset-param-24D)
   (reset-param)
+  (results-tag "24D")
   (results-path "../../collect-data/results/24D")
   (ainv 1.015)
   (dz-limit 12)
@@ -162,20 +193,21 @@
 
 (define (reset-param-48I)
   (reset-param)
+  (results-tag "48I")
   (results-path "../../collect-data/results/48I")
   (ainv 1.73)
   (dz-limit 24))
 
 (print "hello")
 
-(fork-limit 1)
+(fork-limit 4)
 
 (fork-exec
   (reset-param-48I)
   (collect-analysis))
 
-; (fork-exec
-;   (reset-param-24D)
-;   (collect-analysis))
+(fork-exec
+  (reset-param-24D)
+  (collect-analysis))
 
 (wait-all)

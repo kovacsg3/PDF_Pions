@@ -1,3 +1,3 @@
-# PDF_Pions
+# PDF Pions
 
-Testing.
+Calculating parton distribution functions with domain wall fermions!

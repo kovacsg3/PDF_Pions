@@ -186,7 +186,7 @@
 (define (reset-param-24D)
   (reset-param)
   (results-tag "24D")
-  (results-path "../../collect-data/results/24D")
+  (results-path "../collect-data/results/24D")
   (ainv 1.015)
   (dz-limit 12)
   )
@@ -194,7 +194,7 @@
 (define (reset-param-48I)
   (reset-param)
   (results-tag "48I")
-  (results-path "../../collect-data/results/48I")
+  (results-path "../collect-data/results/48I")
   (ainv 1.73)
   (dz-limit 24))
 

@@ -141,7 +141,7 @@
 
 (define (plot-corr jsamples name)
   (plot-save
-    (format "plots/~a/~a.pdf" (results-tag) name)
+    (format "../PDF_Pions-plots/~a/~a.pdf.png.eps" (results-tag) name)
     (cons "corr-0.txt"
           (get-corr-dt jsamples name 0))
     (cons "corr-1.txt"

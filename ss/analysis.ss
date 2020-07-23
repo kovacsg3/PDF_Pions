@@ -200,6 +200,8 @@
 
 (print "hello")
 
+(print (cd))
+
 (fork-limit 4)
 
 (fork-exec

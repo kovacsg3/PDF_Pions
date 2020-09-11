@@ -169,10 +169,10 @@
     (print (dec (length jsamples)))
     (plot-corr jsamples "pion-corr")
     (plot-corr jsamples "proton-corr")
-    ; (print
-    ;   (apply
-    ;     tree-op cons
-    ;     (get-func-ve get-gz/gt-ratio jsamples)))
+    (print
+      (apply
+        tree-op cons
+        (get-func-ve get-gz/gt-ratio jsamples)))
     )
   )
 

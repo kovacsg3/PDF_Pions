@@ -5,17 +5,27 @@ namespace qlat
 
 // -----------------------------------------------------------------------------------
 
+inline std::string get_data_path(const std::string& job_tag, const int traj)
+{
+  return ssprintf("../../collect-data/results/%s/results=%d", job_tag.c_str(),
+                  traj);
+}
+
 inline std::vector<int> get_all_trajs(const std::string& job_tag)
 {
   TIMER_VERBOSE("get_all_trajs");
   std::vector<int> ret;
   if (job_tag == "48I") {
     for (int traj = 500; traj <= 3000; traj += 10) {
-      ret.push_back(traj);
+      if (does_file_exist_sync_node(get_data_path(job_tag, traj))) {
+        ret.push_back(traj);
+      }
     }
   } else if (job_tag == "24D") {
     for (int traj = 1000; traj <= 4000; traj += 10) {
-      ret.push_back(traj);
+      if (does_file_exist_sync_node(get_data_path(job_tag, traj))) {
+        ret.push_back(traj);
+      }
     }
   } else {
     qassert(false);
@@ -23,15 +33,23 @@ inline std::vector<int> get_all_trajs(const std::string& job_tag)
   return ret;
 }
 
-inline std::string get_data_path(const std::string& job_tag, const int traj)
-{
-  return ssprintf("../../collect-data/results/%s/results=%d", job_tag.c_str(),
-                  traj);
-}
-
 inline bool compute_traj_do(const std::string& job_tag, const int traj)
 {
   TIMER_VERBOSE("compute_traj_do");
+  const std::string data_path = get_data_path(job_tag, traj);
+  const std::vector<std::vector<double> > dt =
+      qload_datatable(data_path + "/pion-corr/lmom=0.txt");
+  for (int i = 0; i < (int)dt.size(); ++i) {
+    displayln_info(ssprintf("%20lf %24.17E", dt[i][0], dt[i][1]));
+  }
+  LatData ld;
+  ld.load(data_path + "/pion-qpdf-latio/lmom=0 ; tsep=4.lat");
+  const Vector<Complex> ldv =
+      lat_data_complex_get_const(ld, make_array<int>(0, 0, 0));
+  for (int i = 0; i < ldv.size(); ++i) {
+    displayln_info(ssprintf("%4d %24.17E %24.17E", i, ldv[i].real(), ldv[i].imag()));
+  }
+  displayln_info(show(ld));
   return false;
 }
 
